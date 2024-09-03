@@ -93,8 +93,8 @@ class PerformancePlotCallback(callbacks.Callback):
         HTER = (FAR + FRR) / 2
         f1_score_val = f1_score(self.y_val, y_pred_val)
 
-        print(f'\nEpoch {step} - HTER {self.mode.capitalize()}: {HTER:.4f}')
-        print(f'Epoch {step} - f1-score {self.mode.capitalize()}: {f1_score_val:.4f}')
+        print(f'\n HTER {self.mode.capitalize()}: {HTER:.4f}')
+        print(f'f1-score {self.mode.capitalize()}: {f1_score_val:.4f}')
 
         with self.file_writer.as_default():
             tf.summary.scalar(f'HTER {self.mode.capitalize()}', HTER, step=step)

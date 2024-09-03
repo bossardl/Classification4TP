@@ -170,7 +170,7 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
                             epochs=epochs, 
                             batch_size=batch_size, 
                             validation_data=(x_val, y_val),
-                            callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val],
+                            callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model],
                             class_weight=class_weights_dict,  
                             verbose=1)
         
