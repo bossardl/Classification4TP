@@ -1,4 +1,4 @@
-## CLASSFICATION DE VISAGE ## 
+## CLASSFICATION OF FACES ## 
 
 Minimization of the HTER (Half Total Eror Loss) on face images.
 The dataset comprises 87898 label 1 and 12102 label 0. 
