@@ -1,0 +1,17 @@
+# Ignore virtual environment directory
+/tpenv
+/tpenv/
+tpenv/
+
+
+# Ignore training and validation image directories
+/train_img
+/val_img
+/train_img/
+/val_img/
+train_img/
+val_img/
+
+# Ignore Python bytecode files
+__pycache__/
+

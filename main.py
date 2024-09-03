@@ -13,7 +13,7 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
     indices = get_sample(normalized_image_set, labels, n_draw=4)
     print('\n')
     X, y = get_data(normalized_image_set,labels, indices)
-    X, y = X[:1000], y[:1000] 
+    # X, y = X[:1000], y[:1000] 
     print('##################################################################')
     print('\n')
     print('\n')
@@ -25,7 +25,7 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
     print('\n')
     if training_mode == 'CrossVal':
         model, _, _ = train_and_evaluate_model_crossVal(X, y, batch_size=batch_size, learning_rate=learning_rate, epochs=epochs, epoch_interval=epoch_interval)
-    else:
+    elif training_mode == 'Val':
         model, _, _ = train_and_evaluate_model_classWeight(X, y, batch_size=batch_size, learning_rate=learning_rate, epochs=epochs, epoch_interval=epoch_interval)
     print('\n')
     print('\n')
