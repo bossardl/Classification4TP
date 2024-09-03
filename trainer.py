@@ -133,7 +133,7 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
-    for fold, (train_index, val_index) in tqdm(enumerate(skf.split(X))):
+    for fold, (train_index, val_index) in tqdm(enumerate(skf.split(X, y)), total=n_splits):
         x_train, x_val = X[train_index], X[val_index]
         y_train, y_val = y[train_index], y[val_index]
 
