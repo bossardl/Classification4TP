@@ -1,6 +1,14 @@
 import argparse
 
 def get_args():
+    """
+    Function to parse the arugments entered in a command line.
+
+    Parameters:
+        
+    Returns:
+        parser.parse_args(): Structure of object with arguments accessible by instantiation
+    """
     parser = argparse.ArgumentParser(description="Train a model on image data")
 
     # Arguments

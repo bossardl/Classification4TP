@@ -3,10 +3,23 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Input
 from tensorflow.keras.optimizers import Adam
 from evaluation import hter_metrics
+from typing import Tuple
 
 
+def build_cnn_model(image_shape:Tuple=(64, 64, 3), learning_rate:float =0.001):
 
-def build_cnn_model(image_shape=(64, 64, 3), learning_rate=0.001):
+    """
+    Classic architecture for face images. Adam optimizer is also a classic optimizer.
+    For binary classification, the loss will be the binary cross entropy.
+
+    Parameters:
+        image_shape (Tuple): A Tuple to enable Sequential to access the iamge shape (color image here).
+        learning_rate (float): Float defined as argument when calling the model to define learning rate
+
+        
+    Returns:
+        float: result of the metric HTER.
+    """
     model = Sequential()
     model.add(Input(shape=image_shape))
     model.add(Conv2D(36, (3, 3), activation='relu'))

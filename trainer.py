@@ -118,7 +118,7 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
     with open(yaml_file_path, 'w') as file:
         yaml.dump(params, file, default_flow_style=False)
     
-    best_model_path = 'best_model.h5'
+    best_model_path = os.path.join(log_dir, 'best_model.h5')
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
     file_writer = tf.summary.create_file_writer(log_dir + "/metrics")    
 

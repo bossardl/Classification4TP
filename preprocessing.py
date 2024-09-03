@@ -73,6 +73,7 @@ def load_and_normalize_images(image_dir: Path):
 
 
 def get_sample(image_set: np.ndarray, labels: np.ndarray, n_draw: int, flag_display=False):
+    
     """
     Display random samples with labels in a grid.
 

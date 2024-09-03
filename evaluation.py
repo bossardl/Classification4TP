@@ -1,6 +1,17 @@
 from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
+import numpy as np
+def hter_metrics(y_true:np.ndarray , y_pred: np.ndarray):
+    """
+    Implement HTER (Half Total Error Rate)metrics
 
-def hter_metrics(y_true, y_pred):
+    Parameters:
+        y_true (np.ndarray): A NumPy array of y ground truth labels.
+        y_pred (np.ndarray): A NumPy array of y prediction.
+
+        
+    Returns:
+        float: result of the metric HTER.
+    """
     cm = confusion_matrix(y_true, y_pred)
     
     if cm.shape == (2, 2):
@@ -16,8 +27,20 @@ def hter_metrics(y_true, y_pred):
 
 
 
-def evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold = 0.5):
+def evaluate_model(y_pred_prob_train:np.ndarray, y_train:np.ndarray, y_pred_prob_val:np.ndarray, y_val:np.ndarray, threshold = 0.5):
+    """
+    Evaluation of the model on f1_score, roc_auc_score and HTER score with threshold 0.5
 
+    Parameters:
+        y_pred_prob_train (np.ndarray): A NumPy array of rediction [0,1] from Training set.
+        y_train (np.ndarray): A NumPy array of y ground truth labels from Training set.
+        y_pred_prob_val (np.ndarray): A NumPy array of rediction [0,1] from Validation set.
+        y_val(np.ndarray): A NumPy array of y ground truth labels from Validation set.
+
+        
+    Returns:
+        list of float: result of HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val 
+    """
     y_pred_train = (y_pred_prob_train > threshold).astype(int)
     y_pred_val = (y_pred_prob_val > threshold).astype(int)
 

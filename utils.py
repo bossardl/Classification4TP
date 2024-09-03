@@ -6,6 +6,9 @@ import io
 from sklearn.metrics import confusion_matrix, f1_score
 
 class SaveBestModelCallback(tf.keras.callbacks.Callback):
+    """
+    Callbacks to monitor the metrics during training.
+    """
     def __init__(self, x_val, y_val, file_path):
         super(SaveBestModelCallback, self).__init__()
         self.x_val = x_val
@@ -14,6 +17,7 @@ class SaveBestModelCallback(tf.keras.callbacks.Callback):
         self.best_hter = float('inf') 
 
     def calculate_hter(self):
+
         threshold = 0.5
         y_pred_prob_val = self.model.predict(self.x_val)
         y_pred_val = (y_pred_prob_val > threshold).astype(int)
@@ -29,6 +33,7 @@ class SaveBestModelCallback(tf.keras.callbacks.Callback):
         HTER = (FAR + FRR) / 2
         return HTER
 
+    # Calculate at the end of epochs
     def on_epoch_end(self, epoch, logs=None):
         hter = self.calculate_hter()
         if hter < self.best_hter:
@@ -99,12 +104,12 @@ class PerformancePlotCallback(callbacks.Callback):
         with self.file_writer.as_default():
             tf.summary.scalar(f'HTER {self.mode.capitalize()}', HTER, step=step)
             tf.summary.scalar(f'f1-score {self.mode.capitalize()}', f1_score_val, step=step)
-
+    # Calculate at the end of epochs
     def on_epoch_end(self, epoch, logs=None):
         if self.mode == 'train' and (epoch + 1) % self.epoch_interval == 0:
             self.log_predictions_to_tensorboard(f'{self.model_name} Epoch {epoch+1}', step=epoch)
             self.calculate_metrics(step=epoch)
-
+    # Calculate after the end of epochs for evaluation
     def on_test_end(self, logs=None):
         if self.mode == 'val':
             self.log_predictions_to_tensorboard(f'{self.model_name} at Validation', step=0)
