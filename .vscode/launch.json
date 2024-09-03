@@ -1,0 +1,25 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: main.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "args": [
+                "--image_path", "val_img",
+                "--label_path", "label_train.txt",
+                "--batch_size", "128",
+                "--lr", "0.001",
+                "--epochs", "10",
+                "--epoch_interval", "1",
+                "--training_mode", "CrossVal"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": true
+        }
+    ]
+}
