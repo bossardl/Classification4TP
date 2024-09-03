@@ -19,7 +19,6 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
     indices = get_sample(normalized_image_set, labels, n_draw=4)
     print('\n')
     X, y = get_data(normalized_image_set,labels, indices)
-   
 
     print('##################################################################')
     print('\n')

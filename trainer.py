@@ -12,6 +12,18 @@ from evaluation import evaluate_model
 from utils import PerformancePlotCallback, SaveBestModelCallback
 
 def train_and_evaluate_model_classWeight(X, y, batch_size=32, learning_rate=0.001, epochs=100, epoch_interval=5):
+    """
+    Implement HTER (Half Total Error Rate)metrics
+
+    Parameters:
+        y_true (np.ndarray): A NumPy array of y ground truth labels.
+        y_pred (np.ndarray): A NumPy array of y prediction.
+
+        
+    Returns:
+        float: result of the metric HTER.
+    """
+        
     image_shape = (64, 64, 3)
     metrics_train :dict = {'HTER':None , 'f1_score':None , 'roc_auc':None}
     metrics_evaluation :dict = {'HTER':None , 'f1_score':None , 'roc_auc':None}
@@ -34,7 +46,7 @@ def train_and_evaluate_model_classWeight(X, y, batch_size=32, learning_rate=0.00
     with open(yaml_file_path, 'w') as file:
         yaml.dump(params, file, default_flow_style=False)
     
-    best_model_path = 'best_model.h5'
+    best_model_path = os.path.join(log_dir, 'best_model.keras')
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
     
 
@@ -118,13 +130,14 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
     with open(yaml_file_path, 'w') as file:
         yaml.dump(params, file, default_flow_style=False)
     
-    best_model_path = os.path.join(log_dir, 'best_model.h5')
+    best_model_path = os.path.join(log_dir, 'best_model.keras')
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
     file_writer = tf.summary.create_file_writer(log_dir + "/metrics")    
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
     for fold, (train_index, val_index) in tqdm(enumerate(skf.split(X, y)), total=n_splits):
+        print(f'Fold n°{fold}')
         x_train, x_val = X[train_index], X[val_index]
         y_train, y_val = y[train_index], y[val_index]
 
@@ -133,31 +146,28 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
         save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
 
 
-        log_dir += '_fold_' + str(fold)
-        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+        new_log_dir = log_dir + '_fold_' + str(fold)
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=new_log_dir, histogram_freq=1)
         
         # Save best models per Fold
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-        checkpoint_path = os.path.join(log_dir, '_fold_' + str(fold) + "_cnn_model.keras")
+        if not os.path.exists(new_log_dir):
+            os.makedirs(new_log_dir)
+        checkpoint_path = os.path.join(new_log_dir, '_fold_' + str(fold) + "_cnn_model.keras")
         checkpoint_callback = ModelCheckpoint(checkpoint_path, save_best_only=True)
 
-        file_writer = tf.summary.create_file_writer(log_dir + "/metrics")
+        file_writer = tf.summary.create_file_writer(new_log_dir + "/metrics")
     
 
 
         y_train = y_train.flatten() 
         y_val = y_val.flatten() 
+        # Compute class weights as number of occurences of each class in the total observations
         class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
         class_weights_dict = dict(enumerate(class_weights))
         
         model = build_cnn_model(image_shape=image_shape, learning_rate=learning_rate)
     
-        performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, epoch_interval=epoch_interval, mode='train')
-        performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, epoch_interval=epoch_interval, mode='val')
-        save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
-    
-        
+
         history = model.fit(x_train, y_train, 
                             epochs=epochs, 
                             batch_size=batch_size, 
