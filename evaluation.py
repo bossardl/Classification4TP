@@ -34,7 +34,7 @@ def evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold
     print(f"Validation F1 Score: {f1_val:.4f}")
     print(f"Train ROC AUC: {roc_auc_train:.4f}")
     print(f"Validation ROC AUC: {roc_auc_val:.4f}")
-    print(f'HTER Val: {HTER_train:.4f}')
+    print(f'HTER Train: {HTER_train:.4f}')
     print(f'HTER Val: {HTER_val:.4f}')
     return HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val 
     

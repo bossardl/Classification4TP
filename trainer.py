@@ -71,7 +71,7 @@ def train_and_evaluate_model_classWeight(X, y, batch_size=32, learning_rate=0.00
                         epochs=epochs, 
                         batch_size=batch_size, 
                         validation_data=(x_val, y_val),
-                        callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val],
+                        callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model],
                         class_weight=class_weights_dict,  
                         verbose=1)
     
@@ -120,16 +120,7 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
     
     best_model_path = 'best_model.h5'
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
-    file_writer = tf.summary.create_file_writer(log_dir + "/metrics")
-
-
-    image_shape = (64, 64, 3)
-    
-    hter_scores = []
-    f1_score_train_list = []
-    f1_score_val_list = []
-    roc_train_list = []
-    roc_val_list = []
+    file_writer = tf.summary.create_file_writer(log_dir + "/metrics")    
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
@@ -161,16 +152,17 @@ def train_and_evaluate_model_crossVal(X, y, batch_size=32, learning_rate=0.001, 
         class_weights_dict = dict(enumerate(class_weights))
         
         model = build_cnn_model(image_shape=image_shape, learning_rate=learning_rate)
-        
-        optimizer = Adam(learning_rate=learning_rate)
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-
+    
+        performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, epoch_interval=epoch_interval, mode='train')
+        performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, epoch_interval=epoch_interval, mode='val')
+        save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
+    
         
         history = model.fit(x_train, y_train, 
                             epochs=epochs, 
                             batch_size=batch_size, 
                             validation_data=(x_val, y_val),
-                            callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model],
+                            callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model, tensorboard_callback],
                             class_weight=class_weights_dict,  
                             verbose=1)
         

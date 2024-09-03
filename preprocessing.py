@@ -72,7 +72,7 @@ def load_and_normalize_images(image_dir: Path):
 
 
 
-def get_sample(image_set: np.ndarray, labels: np.ndarray, n_draw: int):
+def get_sample(image_set: np.ndarray, labels: np.ndarray, n_draw: int, flag_display=False):
     """
     Display random samples with labels in a grid.
 
@@ -89,28 +89,30 @@ def get_sample(image_set: np.ndarray, labels: np.ndarray, n_draw: int):
     sample_images = image_set[indices]
     sample_labels = labels[indices]
     
-    # Grid parameters
-    cols = int(math.ceil(math.sqrt(n_draw)))
-    rows = int(math.ceil(n_draw / cols))
-    
-    fig, axes = plt.subplots(rows, cols, figsize=(cols * 2.5, rows * 2.5))
-    
-    for i, ax in enumerate(axes.flatten()):
-        if i < n_draw:
-            ax.imshow(sample_images[i])
-            ax.axis('off')
-            ax.set_title(f"Image n°{indices[i]} - Label: {sample_labels[i]}")
-        else:
-            ax.axis('off')  
+    if flag_display == True:
+        # Grid parameters
+        cols = int(math.ceil(math.sqrt(n_draw)))
+        rows = int(math.ceil(n_draw / cols))
+        
+        fig, axes = plt.subplots(rows, cols, figsize=(cols * 2.5, rows * 2.5))
+        
+        for i, ax in enumerate(axes.flatten()):
+            if i < n_draw:
+                ax.imshow(sample_images[i])
+                ax.axis('off')
+                ax.set_title(f"Image n°{indices[i]} - Label: {sample_labels[i]}")
+            else:
+                ax.axis('off')  
 
-    plt.tight_layout()
-    plt.show()
+        plt.tight_layout()
+        plt.show()
+        
+        # Wait for 2 seconds
+        time.sleep(2)
+        
+        # Close the figure
+        plt.close(fig)
     
-    # Wait for 2 seconds
-    time.sleep(2)
-    
-    # Close the figure
-    plt.close(fig)
 
     return indices
 
