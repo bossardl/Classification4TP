@@ -67,7 +67,6 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
         exit
     
 
-
     print('##################################################################')
     print('\n')
     print('\n')
