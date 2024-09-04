@@ -2,7 +2,14 @@ from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
 import numpy as np
 def hter_metrics(y_true:np.ndarray , y_pred: np.ndarray):
     """
-    Implement HTER (Half Total Error Rate)metrics
+    Implement HTER (Half Total Error Rate)metrics.
+    HTER is half of the sum of the false acceptance rate (FAR) and the false rejection rate (FRR)
+
+    Caixun Wang, Jie Zhou,
+    An adaptive index smoothing loss for face anti-spoofing,
+    Pattern Recognition Letters,
+    Volume 153, 2022, Pages 168-175, ISSN 0167-8655,
+    https://doi.org/10.1016/j.patrec.2021.12.006.
 
     Parameters:
         y_true (np.ndarray): A NumPy array of y ground truth labels.
@@ -11,6 +18,8 @@ def hter_metrics(y_true:np.ndarray , y_pred: np.ndarray):
         
     Returns:
         float: result of the metric HTER.
+
+        
     """
     cm = confusion_matrix(y_true, y_pred)
     

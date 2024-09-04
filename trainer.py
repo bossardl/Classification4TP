@@ -2,6 +2,7 @@ import os
 import yaml
 import numpy as np
 import tensorflow as tf
+from tqdm import tqdm
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
@@ -107,7 +108,7 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
                         validation_data=(x_val, y_val),
                         callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model, tensorboard_callback],
                         class_weight=class_weights_dict,  
-                        verbose=1)
+                        verbose=3)
     
     print('\n')
     print('                PREDICTION                ')
