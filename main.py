@@ -64,7 +64,9 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
         order = np.arange(len(y_resampled))
         np.random.shuffle(order)
         X = X_resampled[order]
+        del X_resampled
         y = y_resampled[order]
+        del y_resampled
         print('\n')
         print(f'Updated inforamtion on data: \n ')
         X, y = get_data(X,y, indices)
@@ -84,7 +86,7 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
 
     # Build the model
     if model_type=='simple':
-        model = build_cnn_model(image_shape=(64, 64, 3), learning_rate=args.lr, model_type=model)
+        model = build_cnn_model(image_shape=(64, 64, 3), learning_rate=args.lr, model_type=model_type)
     print('\n')
     print(model.summary()) # Print the model parameters
     print('\n')
