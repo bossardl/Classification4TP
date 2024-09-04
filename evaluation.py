@@ -59,6 +59,7 @@ def evaluate_model(y_pred_prob_train:np.ndarray, y_train:np.ndarray, y_pred_prob
     print(f"Validation ROC AUC: {roc_auc_val:.4f}")
     print(f'HTER Train: {HTER_train:.4f}')
     print(f'HTER Val: {HTER_val:.4f}')
+    print('\n')
     return HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val 
     
 

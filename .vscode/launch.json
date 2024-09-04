@@ -7,13 +7,16 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args": [
-                "--image_path", "val_img",
+                "--image_path", "train_img",
                 "--label_path", "label_train.txt",
                 "--batch_size", "128",
                 "--lr", "0.001",
-                "--epochs", "10",
+                "--epochs", "2",
                 "--epoch_interval", "1",
-                "--training_mode", "CrossVal"
+                "--training_mode", "CrossVal",
+                "--method", "undersampling",
+                "--undersampling", "1",
+                "--oversampling", "0"
             ],
             "console": "integratedTerminal",
             "env": {

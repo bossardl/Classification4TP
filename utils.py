@@ -34,14 +34,14 @@ class SaveBestModelCallback(tf.keras.callbacks.Callback):
         return HTER
 
     # Calculate at the end of epochs
-    def on_epoch_end(self, epoch, logs=None):
+    def on_test_end(self, logs=None):
         hter = self.calculate_hter()
         if hter < self.best_hter:
             self.best_hter = hter
             self.model.save(self.file_path)
-            print(f"\nEpoch {epoch + 1}: HTER improved to {hter:.4f}. Model saved to {self.file_path}.")
+            print(f"\nValidation: HTER improved to {hter:.4f}. \n Model saved to {self.file_path}.")
         else:
-            print(f"\nEpoch {epoch + 1}: HTER {hter:.4f}. Best HTER is {self.best_hter:.4f}.")
+            print(f"\nValidation: HTER {hter:.4f}. Best HTER is {self.best_hter:.4f}.")
 
 
 class PerformancePlotCallback(callbacks.Callback):
