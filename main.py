@@ -20,7 +20,7 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
     print('\n')
     X, y = get_data(normalized_image_set,labels, indices)
 
-    if method is None:
+    if method == 'None':
         pass
 
     elif method=='undersampling':

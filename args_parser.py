@@ -30,7 +30,7 @@ def get_args():
                         help='Model type in [simple, complex].')
     parser.add_argument('--training_mode', type=str, default='CrossVal',
                         help='Training mode crossVal or only one pass (default: CrossVal).')
-    parser.add_argument('--method', type=str, default=None, choices=['undersampling', 'oversampling', None],
+    parser.add_argument('--method', type=str, default=None, choices=['undersampling', 'oversampling', 'None'],
                         help='Method to tackle imbalance of the majority class ["undersampling", "oversampling", None] (default: None).')
     
     parser.add_argument('--undersampling', type=float, default=None,
