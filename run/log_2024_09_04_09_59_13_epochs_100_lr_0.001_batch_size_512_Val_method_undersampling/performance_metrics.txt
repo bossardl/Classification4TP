@@ -1,0 +1,6 @@
+HTER Train: 0.083073
+HTER Validation: 0.106992
+F1 Score Train: 0.932595
+F1 Score Validation: 0.917012
+ROC AUC Train: 0.916927
+ROC AUC Validation: 0.893008

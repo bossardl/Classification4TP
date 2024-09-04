@@ -30,7 +30,7 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
 
     # Setting up the logs directory
     start_time = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_{args.training_mode}_method_{args.method}'
+    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_model_{args.model_type}_mode_{args.training_mode}_method_{args.method}'
     
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
@@ -61,6 +61,9 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
     
     file_writer = tf.summary.create_file_writer(log_dir + "/metrics")
 
+    # Callbacks
+    
+
     # Set up the Checkpoint and EarlyStopping
     checkpoint_path = os.path.join(log_dir, "cnn_model.keras")
     checkpoint_callback = ModelCheckpoint(checkpoint_path, save_best_only=True) #retrain from checkpoint
@@ -89,6 +92,7 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
     
     model = build_cnn_model(image_shape=image_shape, learning_rate=learning_rate)
     
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
     performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, epoch_interval=epoch_interval, mode='train')
     performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, epoch_interval=epoch_interval, mode='val')
     save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
@@ -101,7 +105,7 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
                         epochs=epochs, 
                         batch_size=batch_size, 
                         validation_data=(x_val, y_val),
-                        callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model],
+                        callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model, tensorboard_callback],
                         class_weight=class_weights_dict,  
                         verbose=1)
     
@@ -165,7 +169,7 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
     metrics_evaluation :dict = {'HTER':[] , 'f1_score':[] , 'roc_auc':[]}
     start_time = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
-    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_{args.training_mode}_method_{args.method}'
+    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_model_{args.model_type}_mode_{args.training_mode}_method_{args.method}'
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 

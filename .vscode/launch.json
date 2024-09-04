@@ -13,7 +13,7 @@
                 "--lr", "0.001",
                 "--epochs", "2",
                 "--epoch_interval", "1",
-                "--training_mode", "CrossVal",
+                "--training_mode", "Val",
                 "--method", "undersampling",
                 "--undersampling", "1",
                 "--oversampling", "0"

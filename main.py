@@ -5,7 +5,7 @@ from preprocessing import load_and_normalize_images, read_label, get_sample, get
 from networks import build_cnn_model
 from trainer import train_and_evaluate_model_classWeight, train_and_evaluate_model_crossVal
 
-def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_interval, training_mode, method, undersampling, oversampling):
+def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_interval, model_type, training_mode, method, undersampling, oversampling):
     import numpy as np
     
     # Load normalized images and target
@@ -36,6 +36,10 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
         np.random.shuffle(order)
         X = X_resampled[order]
         y = y_resampled[order]
+        print('\n')
+        print(f'Updated inforamtion on data: \n ')
+        X, y = get_data(X,y, indices)
+        print('\n')
 
     elif method=='oversampling':
         print("Oversampling the minority class to rebalance the set")
@@ -61,10 +65,15 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
         np.random.shuffle(order)
         X = X_resampled[order]
         y = y_resampled[order]
+        print('\n')
+        print(f'Updated inforamtion on data: \n ')
+        X, y = get_data(X,y, indices)
+        print('\n')
 
     else:
         print("Unknown method selected. Please choose 'undersampling' or 'oversampling'.")
         exit
+    
     
 
     print('##################################################################')
@@ -74,7 +83,8 @@ def main(image_directory, label_path, batch_size, learning_rate, epochs, epoch_i
 
 
     # Build the model
-    model = build_cnn_model(image_shape=(64, 64, 3), learning_rate=args.lr)
+    if model_type=='simple':
+        model = build_cnn_model(image_shape=(64, 64, 3), learning_rate=args.lr, model_type=model)
     print('\n')
     print(model.summary()) # Print the model parameters
     print('\n')
@@ -96,5 +106,5 @@ if __name__ == "__main__":
     args = get_args()
     
     main(args.image_path, args.label_path, args.batch_size, 
-         args.lr, args.epochs, args.epoch_interval, args.training_mode,
-         args.method, args.undersampling, args.oversampling)
+         args.lr, args.epochs, args.epoch_interval, args.model_type, args.training_mode,
+          args.method, args.undersampling, args.oversampling)
