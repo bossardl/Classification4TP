@@ -21,7 +21,7 @@ def build_cnn_model(image_shape:Tuple=(64, 64, 3), learning_rate:float =0.001, m
         float: result of the metric HTER.
     """
 
-    if model_type == 'simple':
+    if model_type == 'base':
         # Base model
         model = Sequential()
         model.add(Input(shape=image_shape))
@@ -39,21 +39,22 @@ def build_cnn_model(image_shape:Tuple=(64, 64, 3), learning_rate:float =0.001, m
         model.add(Dense(512, activation='relu'))
         model.add(Dense(1, activation='sigmoid'))
 
-    elif model_type=='simple_sparser':
-        # Layers are bigger to extract more features
+    elif model_type=='small_model':
+        # 1) Less layers
+        # 2) Layers are bigger to extract more features
         model = Sequential([
-        Input(shape=image_shape),
-        Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
-        MaxPooling2D((2, 2)),
-        Conv2D(64, (3, 3), activation='relu'),
-        MaxPooling2D((2, 2)),
-        Conv2D(128, (3, 3), activation='relu'),
-        MaxPooling2D((2, 2)),
-        Flatten(),
-        Dense(128, activation='relu'),
-        Dropout(0.5),
-        Dense(1, activation='sigmoid')
+            Input(shape=image_shape),
+            Conv2D(64, (3, 3), activation='relu'), 
+            MaxPooling2D((2, 2)),
+            Conv2D(128, (3, 3), activation='relu'),
+            MaxPooling2D((2, 2)),
+            Flatten(),
+            Dense(32, activation='relu'),  
+            Dropout(0.5),
+            Dense(1, activation='sigmoid')
         ])
+    else:
+        raise ValueError('Select appropriate name for model_type')
 
     optimizer = Adam(learning_rate=learning_rate)
     model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])

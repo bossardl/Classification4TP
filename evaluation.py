@@ -1,11 +1,19 @@
 from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
 import numpy as np
+
+
 def hter_metrics(y_true:np.ndarray , y_pred: np.ndarray):
     """
     Implement HTER (Half Total Error Rate)metrics.
     HTER is half of the sum of the false acceptance rate (FAR) and the false rejection rate (FRR)
+    HTER is a performance metric used to evaluate binary classification systems, 
+    particularly in the context of biometric systems. [1]
+    It is calculated as the average of the False Acceptance Rate (FAR) and the False Rejection Rate (FRR).
 
-    Caixun Wang, Jie Zhou,
+    FPR = FP/(TN+FP) (x-axis in ROC curve, sensitivity max when FPR min) 
+    TPR = FN/(TP+FN) (x-axis in ROC curve, specificity max when TPR min)
+
+    [1] Caixun Wang, Jie Zhou,
     An adaptive index smoothing loss for face anti-spoofing,
     Pattern Recognition Letters,
     Volume 153, 2022, Pages 168-175, ISSN 0167-8655,
@@ -38,7 +46,8 @@ def hter_metrics(y_true:np.ndarray , y_pred: np.ndarray):
 
 def evaluate_model(y_pred_prob_train:np.ndarray, y_train:np.ndarray, y_pred_prob_val:np.ndarray, y_val:np.ndarray, threshold = 0.5):
     """
-    Evaluation of the model on f1_score, roc_auc_score and HTER score with threshold 0.5
+    Evaluation of the model on f1_score, roc_auc_score and HTER score with threshold 0.5.
+    The threshold is fine-tuned based on HTER in a second phase once the model is trained.
 
     Parameters:
         y_pred_prob_train (np.ndarray): A NumPy array of rediction [0,1] from Training set.

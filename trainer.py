@@ -10,20 +10,39 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 from networks import build_cnn_model
 from evaluation import evaluate_model
+from preprocessing import train_test_split_and_resampling
 from utils import PerformancePlotCallback, SaveBestModelCallback
 
-def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rate=0.001, epochs=100, epoch_interval=5):
+def train_and_evaluate_model_classWeight( X: np.array,
+                                          y: np.array, 
+                                          args,
+                                          ):
     """
-    Implement HTER (Half Total Error Rate)metrics
+    Organizes the experiment tracking by creating directories and files for storing 
+    callbacks (e.g., .txt, .yaml, .keras files). This function fits the model using the 
+    provided arguments and evaluates the model's performance.
 
     Parameters:
-        y_true (np.ndarray): A NumPy array of y ground truth labels.
-        y_pred (np.ndarray): A NumPy array of y prediction.
+    ----------
+    X : np.ndarray
+        A NumPy array containing the normalized input images.
+    y : np.ndarray
+        A NumPy array containing the corresponding labels or predictions.
+    args : dict
+        Additional keyword arguments for model configuration and training, 
+        including callbacks, model architecture, and hyperparameters.
 
-        
     Returns:
-        float: result of the metric HTER.
+    -------
+    model : keras.Model
+        The trained Keras model instance.
+    metrics_train : dict
+        A dictionary containing the training metrics.
+    metrics_evaluation : dict
+        A dictionary containing the evaluation metrics, including the HTER .
     """
+
+
         
     image_shape = (64, 64, 3)
     metrics_train :dict = {'HTER':None , 'f1_score':None , 'roc_auc':None}
@@ -31,14 +50,15 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
 
     # Setting up the logs directory
     start_time = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
-    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_model_{args.model_type}_mode_{args.training_mode}_method_{args.method}'
-    
+    log_dir = (f'run/log_{start_time}_epochs_{args.epochs}_lr_{args.lr}_batch_size_{args.batch_size}_'
+            f'model_{args.model_type}_mode_{args.training_mode}_method_{args.method}')
+
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     
 
     # Load the arguments and parameters for experiment tracking
-    args = {
+    arguments = {
     'image_path': args.image_path,
     'label_path': args.label_path,
     'batch_size': args.batch_size,
@@ -67,15 +87,16 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
 
     # Set up the Checkpoint and EarlyStopping
     checkpoint_path = os.path.join(log_dir, "cnn_model.keras")
-    checkpoint_callback = ModelCheckpoint(checkpoint_path, save_best_only=True) #retrain from checkpoint
+    checkpoint_callback = ModelCheckpoint(checkpoint_path, save_best_only=True) 
 
     best_model_path = os.path.join(log_dir, 'best_model.keras')
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True) #Stop after no improvement of val_loss
+    #Stop fitting after no improvement of val_loss
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True) 
     
-
-    # Train Validation Split of the data to balance bias and variance of the training i.e over- and underfitting
-    x_train, x_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=1, stratify=y)
-
+    # Train Validation Split of the data to balance bias and variance of the training 
+    # i.e over- and underfitting
+    
+    x_train, x_val, y_train, y_val = train_test_split_and_resampling(args, X, y)
 
     print('\n')
     print('\n')
@@ -83,19 +104,25 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
     print(f'Loaded {len(X)} images in total.')
     print(f'Loaded {len(x_train)} images for training.')
     print(f'Loaded {len(x_val)} images for validation.')
-    print(f'Using batch size of {batch_size}, learning rate of {learning_rate}, for {epochs} epochs.')
+    print(f'Using batch size of {args.batch_size}, learning rate of {args.lr}, for {args.epochs} epochs.')
     print('##################################################################')
 
     y_train = y_train.flatten() 
     y_val = y_val.flatten() 
-    class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
+    class_weights = class_weight.compute_class_weight(class_weight='balanced',\
+                                                       classes=np.unique(y_train), y=y_train)
     class_weights_dict = dict(enumerate(class_weights))
     
-    model = build_cnn_model(image_shape=image_shape, learning_rate=learning_rate)
+    model = build_cnn_model(image_shape=(64, 64, 3), 
+                            learning_rate=args.lr, 
+                            model_type=args.model_type,
+                            )
     
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, epoch_interval=epoch_interval, mode='train')
-    performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, epoch_interval=epoch_interval, mode='val')
+    performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, \
+                                                epoch_interval=args.epoch_interval, mode='train')
+    performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, \
+                                              epoch_interval=args.epoch_interval, mode='val')
     save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
     
     print('\n')
@@ -103,25 +130,32 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
     print('                             TRAINING                ')
     print('\n')
     history = model.fit(x_train, y_train, 
-                        epochs=epochs, 
-                        batch_size=batch_size, 
+                        epochs=args.epochs, 
+                        batch_size=args.batch_size, 
                         validation_data=(x_val, y_val),
-                        callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model, tensorboard_callback],
+                        callbacks=[early_stopping, checkpoint_callback, performance_train,\
+                                    performance_val, save_best_model, tensorboard_callback],
                         class_weight=class_weights_dict,  
-                        verbose=3)
+                        verbose=1)
     
     print('\n')
-    print('                PREDICTION                ')
+    print('                             PREDICTION                ')
     print('\n')
     y_pred_prob_train = model.predict(x_train)
     y_pred_prob_val = model.predict(x_val)
     print('\n')
     print('                             EVALUATION                ')
     print('\n')
-    HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val = evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold = 0.5)
-    metrics_train['HTER'], metrics_train['f1_score'], metrics_train['roc_auc']= HTER_train, f1_train, roc_auc_train
-    metrics_evaluation['HTER'], metrics_evaluation['f1_score'], metrics_evaluation['roc_auc']= HTER_val, f1_val, roc_auc_val
+    HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val = \
+        evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold = 0.5)
     
+    metrics_train['HTER'] = HTER_train
+    metrics_train['f1_score'] = f1_train
+    metrics_train['roc_auc'] = roc_auc_train
+
+    metrics_evaluation['HTER']= HTER_val
+    metrics_evaluation['f1_score'] = f1_val
+    metrics_evaluation['roc_auc'] = roc_auc_val
 
 
     print('                             SAVING                ')
@@ -138,7 +172,7 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
 
     # Save the experiment data 
     experiment_data = {
-            'arguments': args,
+            'arguments': arguments,
             'parameters': params,
             'performance': {
                 'HTER_train': f"{HTER_train:.6f}",
@@ -160,7 +194,39 @@ def train_and_evaluate_model_classWeight(X, y, args, batch_size=32, learning_rat
 
 
 
-def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0.001, epochs=100, n_splits=5, epoch_interval=5):
+def train_and_evaluate_model_crossVal(X, 
+                                      y, 
+                                      args,
+                                      n_splits=5,
+                                      ):
+    
+    """
+    Organizes the experiment tracking by creating directories and files for storing 
+    callbacks (e.g., .txt, .yaml, .keras files). This function fits the model using the 
+    provided arguments. It is designed to handle cross validation. For each fold, it 
+    evaluates the model's performance.
+    It aggregates the values as average of each metric
+
+    Parameters:
+    ----------
+    X : np.ndarray
+        A NumPy array containing the normalized input images.
+    y : np.ndarray
+        A NumPy array containing the corresponding labels or predictions.
+    args : dict
+        Additional keyword arguments for model configuration and training, 
+        including callbacks, model architecture, and hyperparameters.
+
+    Returns:
+    -------
+    model : keras.Model
+        The trained Keras model instance.
+    metrics_train : dict
+        A dictionary containing the list of training metrics for each fold.
+    metrics_evaluation : dict
+        A dictionary containing the list of evaluation metrics for each fold , including the HTER .
+    """
+        
     from sklearn.model_selection import StratifiedKFold
     from tqdm import tqdm 
 
@@ -170,13 +236,15 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
     metrics_evaluation :dict = {'HTER':[] , 'f1_score':[] , 'roc_auc':[]}
     start_time = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
 
-    log_dir = f'run/log_{start_time}_epochs_{epochs}_lr_{learning_rate}_batch_size_{batch_size}_model_{args.model_type}_mode_{args.training_mode}_method_{args.method}'
+    log_dir = (f'run/log_{start_time}_epochs_{args.epochs}_lr_{args.lr}_batch_size_{args.batch_size}_'
+            f'model_{args.model_type}_mode_{args.training_mode}_method_{args.method}_{args.oversampling}')
+
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
 
     # Loading arguments of the model
-    args = {
+    arguments = {
     'image_path': args.image_path,
     'label_path': args.label_path,
     'batch_size': args.batch_size,
@@ -204,6 +272,7 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
         print(f'############################ Fold n°{fold + 1} ############################ ')
         x_train, x_val = X[train_index], X[val_index]
         y_train, y_val = y[train_index], y[val_index]
+        x_train, x_val, y_train, y_val = train_test_split_and_resampling(args, X, y)
 
         new_log_dir = log_dir + '_fold_' + str(fold)
         # Save best models per Fold
@@ -215,10 +284,13 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
 
         # Callbacks
         tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=new_log_dir, histogram_freq=1)
-        performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, epoch_interval=epoch_interval, mode='train')
-        performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, epoch_interval=epoch_interval, mode='val')
+        performance_train = PerformancePlotCallback(x_train, y_train, "CNN_model_train", file_writer, \
+                                                    epoch_interval=args.epoch_interval, mode='train')
+        performance_val = PerformancePlotCallback(x_val, y_val, "CNN_model_val", file_writer, \
+                                                  epoch_interval=args.epoch_interval, mode='val')
         save_best_model = SaveBestModelCallback(x_val=x_val, y_val=y_val, file_path=best_model_path)
-        early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, \
+                                       restore_best_weights=True)
 
 
         # Save parameters of the model
@@ -234,17 +306,23 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
         # Compute class weights as number of occurences of each class in the total observations 
         y_train = y_train.flatten() 
         y_val = y_val.flatten() 
-        class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
+        class_weights = class_weight.compute_class_weight(class_weight='balanced', \
+                                                          classes=np.unique(y_train), y=y_train)
         class_weights_dict = dict(enumerate(class_weights))
         
-        model = build_cnn_model(image_shape=image_shape, learning_rate=learning_rate)
+        model = build_cnn_model(image_shape=image_shape,
+                                learning_rate=args.lr,
+                                model_type=args.model_type,
+                                   )
     
 
         history = model.fit(x_train, y_train, 
-                            epochs=epochs, 
-                            batch_size=batch_size, 
+                            epochs=args.epochs, 
+                            batch_size=args.batch_size, 
                             validation_data=(x_val, y_val),
-                            callbacks=[early_stopping, checkpoint_callback, performance_train, performance_val, save_best_model, tensorboard_callback],
+                            callbacks=[early_stopping, checkpoint_callback, \
+                                       performance_train, performance_val, save_best_model, \
+                                        tensorboard_callback],
                             class_weight=class_weights_dict,  
                             verbose=1)
         
@@ -257,7 +335,8 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
         print('\n')
         print('                             EVALUATION                ')
         print('\n')
-        HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val = evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold = 0.5)
+        HTER_train, HTER_val, f1_train, f1_val, roc_auc_train, roc_auc_val = \
+            evaluate_model(y_pred_prob_train, y_train, y_pred_prob_val, y_val, threshold = 0.5)
         
         # Saving the metrics for Training and validation
         metrics_file = os.path.join(new_log_dir, f'performance_metrics_fold_{fold}.txt')
@@ -272,7 +351,7 @@ def train_and_evaluate_model_crossVal(X, y, args, batch_size=32, learning_rate=0
 
         # Save the experiment data fo each fold during Cross Validation
         experiment_data = {
-                'arguments': args,
+                'arguments': arguments,
                 'parameters': params,
                 'performance': {
                     'HTER_train': f"{HTER_train:.6f}",
