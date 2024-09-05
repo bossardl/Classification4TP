@@ -139,10 +139,10 @@ def train_test_split_and_resampling(args, X, y):
         print('\n')
         print(f'Original information on data: \n ')
         print(f'Shape of the train {x_train.shape} and {x_val.shape} val image set.')
+        print(f'Shape of the train {y_train.shape} and {y_val.shape} val label set.')
         # Count occurences of labels in train
         y_train_count, y_val_count = np.where(y_train==1)[0], np.where(y_val==1)[0]
         print(f'Number of 0s in train {len(y_train_count)} and in val {len(y_val_count)}.')
-        print(f'Shape of the train {y_train.shape} and {x_val.shape} val label set.')
         print(f'Shape of data {x_train[0].shape}.')
         print('\n')
         
@@ -165,10 +165,10 @@ def train_test_split_and_resampling(args, X, y):
         print('\n')
         print(f'Updated information on data after split & resampling: \n ')
         print(f'Shape of the train {x_train.shape} and {x_val.shape} val image set.')
+        print(f'Shape of the train {y_train.shape} and {y_val.shape} val label set.')
         # Count occurences of labels in train
         y_train_count, y_val_count = np.where(y_train==1)[0], np.where(y_val==1)[0]
         print(f'Number of 0s in train {len(y_train_count)} and in val {len(y_val_count)}.')
-        print(f'Shape of the train {y_train.shape} and {x_val.shape} val label set.')
         print(f'Shape of data {x_train[0].shape}.')
         print('\n')
 
@@ -182,10 +182,10 @@ def train_test_split_and_resampling(args, X, y):
         print('\n')
         print(f'Original information on data: \n ')
         print(f'Shape of the train {x_train.shape} and {x_val.shape} val image set.')
+        print(f'Shape of the train {y_train.shape} and {y_val.shape} val label set.')
         # Count occurences of labels in train
         y_train_count, y_val_count = np.where(y_train==0)[0], np.where(y_val==0)[0]
         print(f'Number of 0s in train {len(y_train_count)} and in val {len(y_val_count)}.')
-        print(f'Shape of the train {y_train.shape} and {x_val.shape} val label set.')
         print(f'Shape of data {x_train[0].shape}.')
         print('\n')
         
@@ -222,7 +222,7 @@ def train_test_split_and_resampling(args, X, y):
         print('\n')
         print(f'Updated information on data after split & resampling: \n ')
         print(f'Shape of the train {x_train.shape} and {x_val.shape} val image set.')
-        print(f'Shape of the train {y_train.shape} and {x_val.shape} val label set.')
+        print(f'Shape of the train {y_train.shape} and {y_val.shape} val label set.')
         # Count occurences of labels in train
         y_train_count, y_val_count = np.where(y_train==0)[0], np.where(y_val==0)[0]
         print(f'Number of 0s in train {len(y_train_count)} and in val {len(y_val_count)}.')
