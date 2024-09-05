@@ -91,7 +91,7 @@ def train_and_evaluate_model_classWeight( X: np.array,
 
     best_model_path = os.path.join(log_dir, 'best_model.keras')
     #Stop fitting after no improvement of val_loss
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, restore_best_weights=True) 
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5, verbose=1, restore_best_weights=True) 
     
     # Train Validation Split of the data to balance bias and variance of the training 
     # i.e over- and underfitting

@@ -8,7 +8,7 @@ import os, glob, sys
 from tqdm import tqdm
 from pathlib import Path
 import pandas as pd
-from sklearn.model_selection import train_test_split
+
 
 def read_label(label_file: Path) -> pd.DataFrame:
     """
@@ -120,8 +120,31 @@ def get_sample(image_set: np.ndarray, labels: np.ndarray, n_draw: int, flag_disp
 
 
 
-def train_test_split_and_resampling(args, X, y):
-    
+def train_test_split_and_resampling(args, 
+                                    X: np.array, 
+                                    y: np.array,
+                                    ):
+    """
+    Train test split and apply resampling method on the train set only to avoid data snooping.
+
+    Parameters:
+        args : dict
+            Additional keyword arguments for model configuration and training, 
+            including callbacks, model architecture, and hyperparameters.
+        X (np.ndarray): A NumPy array of images.
+        labels (np.ndarray): A NumPy array of labels.
+
+        
+    Returns:
+    x_train (np.ndarray): Train images after splitting with the chosen resampling strategy
+    x_val (np.ndarray): Val images after splitting with the chosen resampling strategy
+    y_train (np.ndarray): Train labels after splitting with the chosen resampling strategy
+    y_val (np.ndarray): Val labels after splitting with the chosen resampling strategy
+        
+    """
+
+    from sklearn.model_selection import train_test_split
+
     if args.method == 'None':
         test_size=0.2
         x_train, x_val, y_train, y_val = train_test_split(X, y, test_size=test_size, random_state=1, stratify=y)
@@ -206,7 +229,7 @@ def train_test_split_and_resampling(args, X, y):
         res_pos_features = pos_features[choices]
         # Since pos_labels are all 0, no need to sample
         res_pos_labels = np.zeros(len(res_pos_features))  
-
+        #Concatenate the resampled image and labels in X_resampled. y_resampled
         X_resampled = np.concatenate([res_pos_features, neg_features], axis=0)
         y_resampled = np.concatenate([res_pos_labels, np.ones(len(neg_features))], axis=0)
         

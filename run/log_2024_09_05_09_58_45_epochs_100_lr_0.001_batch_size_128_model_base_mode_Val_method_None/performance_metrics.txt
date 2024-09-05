@@ -1,0 +1,3 @@
+After 5 epochs - best model:
+HTER Validation: 0.0987
+
